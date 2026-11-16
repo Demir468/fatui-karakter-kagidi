@@ -763,7 +763,12 @@ document.getElementById('btnCopyDmCode').addEventListener('click', () => {
     charges: state.delusionCharges,
     corruption: state.corruption,
     dex: Number(state.stats.dex) || 0,
-    wis: Number(state.stats.wis) || 0
+    wis: Number(state.stats.wis) || 0,
+    weaponHit: state.weaponHit || '',
+    weaponDmg: state.weaponDmg || '',
+    skillHit: state.skillHit || '',
+    skillDmg: state.skillDmg || '',
+    burstMode: state.burstMode || ''
   };
   const encoded = 'FATUI1:' + btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
   navigator.clipboard.writeText(encoded).then(() => {
