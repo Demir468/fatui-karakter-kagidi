@@ -254,6 +254,8 @@ function renderAll() {
   }
 
   // Sanrı Yükü Kristalleri
+  document.getElementById('delusionHeaderIcon').textContent = elemInfo ? elemInfo.icon : '❖';
+  document.getElementById('delusionElemLabel').textContent = elemInfo ? `(${elemInfo.label})` : '(Element Seçilmedi)';
   document.getElementById('delusionCountText').textContent = `${state.delusionCharges} / 4`;
   document.querySelectorAll('.gem-slot').forEach((slot, idx) => {
     slot.classList.toggle('active', idx < state.delusionCharges);
