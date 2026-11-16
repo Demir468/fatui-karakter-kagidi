@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fatui Özel Görev Ajanı — Karakter Kağıdı</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body data-element="none">
+  <div class="bg-orb orb-1"></div>
+  <div class="bg-orb orb-2"></div>
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="fatui-crest" id="elementCrest">❖</div>
+      <div>
+        <h1>FATUI ÖZEL GÖREV AJANI</h1>
+        <p>IV. Harbinger Arlecchino Emrindeki Keşif Timi • İnteraktif Karakter Kağıdı</p>
+      </div>
+    </div>
+
+    <div class="top-actions">
+      <span class="autosave-badge" id="saveIndicator">✓ Otomatik Kayıt Aktif</span>
+      <button type="button" class="btn btn-secondary" id="btnCopyDiscord" title="Discord kanalına yapıştırmak için karakter özetini kopyalar">
+        📋 Discord İçin Kopyala
+      </button>
+      <button type="button" class="btn btn-accent" id="btnCopyDmCode" title="DM'in kendi takip paneline karakterini tek tıkla eklemesi için kod kopyalar">
+        🔗 DM Kodunu Kopyala
+      </button>
+      <button type="button" class="btn btn-ghost" id="btnExportJson" title="Karakterini dosya olarak indir">
+        💾 Yedek İndir
+      </button>
+      <label class="btn btn-ghost file-label" title="İndirdiğin yedek dosyasını geri yükle">
+        📂 Yükle
+        <input type="file" id="inputImportJson" accept=".json" hidden />
+      </label>
+      <button type="button" class="btn btn-danger-solid" id="btnResetSheetTop" title="Tüm alanları ve seçimleri tamamen sıfırlar">
+        🔄 Formu Sıfırla
+      </button>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- BÖLÜM 1: KİMLİK, SINIF VE SANRI SEÇİMİ -->
+    <section class="card identity-card">
+      <div class="section-header">
+        <h2>1. Kimlik, Fatui Birimi ve Sanrı Seçimi</h2>
+        <span class="section-hint">Tüm alanları sıfırdan kendin seçip doldurabilirsin</span>
+      </div>
+
+      <div class="identity-grid">
+        <div class="field">
+          <label for="charName">👤 Karakter Adı / Fatui Kod Adı</label>
+          <input type="text" id="charName" placeholder="Karakter adını veya kod adını gir..." autocomplete="off" />
+        </div>
+
+        <div class="field">
+          <label for="charClass">⚔️ Fatui Birimi (Sınıfı)</label>
+          <select id="charClass">
+            <option value="">— Sınıf / Birim Seçin —</option>
+            <option value="assassin">Ocak Evi Suikastçısı</option>
+            <option value="mage">Cicin / Ayna Büyücüsü</option>
+            <option value="vanguard">Öncü İnfazcı (Vanguard)</option>
+            <option value="skirmisher">Avcı Nişancı (Skirmisher)</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="charElement">💎 Sanrı (Delusion) Elementi</label>
+          <select id="charElement">
+            <option value="">— Element Seçin —</option>
+            <option value="pyro">🔥 Ateş (Pyro)</option>
+            <option value="hydro">💧 Su (Hydro)</option>
+            <option value="cryo">❄️ Buz (Cryo)</option>
+            <option value="electro">⚡ Elektrik (Electro)</option>
+            <option value="anemo">🌪️ Rüzgar (Anemo)</option>
+            <option value="geo">🪨 Toprak (Geo)</option>
+            <option value="dendro">🌿 Doğa (Dendro)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Hızlı Element Seçim Butonları -->
+      <div class="element-pills" id="elementPills">
+        <button type="button" class="elem-pill" data-elem="pyro">🔥 Ateş</button>
+        <button type="button" class="elem-pill" data-elem="hydro">💧 Su</button>
+        <button type="button" class="elem-pill" data-elem="cryo">❄️ Buz</button>
+        <button type="button" class="elem-pill" data-elem="electro">⚡ Elektrik</button>
+        <button type="button" class="elem-pill" data-elem="anemo">🌪️ Rüzgar</button>
+        <button type="button" class="elem-pill" data-elem="geo">🪨 Toprak</button>
+        <button type="button" class="elem-pill" data-elem="dendro">🌿 Doğa</button>
+      </div>
+
+      <div class="field" style="margin-top: 8px;">
+        <label for="charBio">📝 Karakter Geçmişi, Görünümü ve Kişisel Hikayesi</label>
+        <textarea id="charBio" rows="3" placeholder="Karakterinin geçmişini, Fatui'ye nasıl katıldığını, maskesinin/silahının görünümünü ve kişiliğini dilediğin gibi yaz..."></textarea>
+      </div>
+    </section>
+
+    <div class="two-col-layout">
+      <div class="left-column">
+        <!-- BÖLÜM 2: 4 ANA NİTELİK -->
+        <section class="card">
+          <div class="section-header">
+            <h2>2. Temel Nitelikler (+3, +2, +1 ve 0 Dağıt)</h2>
+            <span class="stat-validation neutral" id="statValidationBadge">Henüz seçilmedi</span>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-box">
+              <div class="stat-title">💪 GÜÇ (STR)</div>
+              <div class="stat-desc">Yakın Dövüş • Kırma • Tırmanma</div>
+              <select class="stat-select" id="statStr" data-stat-label="GÜÇ (STR)">
+                <option value="">— Seç —</option>
+                <option value="3">+3</option>
+                <option value="2">+2</option>
+                <option value="1">+1</option>
+                <option value="0">0</option>
+                <option value="-1">-1 (Özel)</option>
+                <option value="4">+4 (Özel)</option>
+              </select>
+              <button type="button" class="btn-roll-mini" data-roll-stat="statStr">🎲 Güç Zarı</button>
+            </div>
+
+            <div class="stat-box">
+              <div class="stat-title">⚡ ÇEVİKLİK (DEX)</div>
+              <div class="stat-desc">Kaçınma • Nişan • İnisiyatif</div>
+              <select class="stat-select" id="statDex" data-stat-label="ÇEVİKLİK (DEX)">
+                <option value="">— Seç —</option>
+                <option value="3">+3</option>
+                <option value="2">+2</option>
+                <option value="1">+1</option>
+                <option value="0">0</option>
+                <option value="-1">-1 (Özel)</option>
+                <option value="4">+4 (Özel)</option>
+              </select>
+              <button type="button" class="btn-roll-mini" data-roll-stat="statDex">🎲 Çeviklik Zarı</button>
+            </div>
+
+            <div class="stat-box">
+              <div class="stat-title">🧠 ZEKA (INT)</div>
+              <div class="stat-desc">Araştırma • Mekanizma • Tıp</div>
+              <select class="stat-select" id="statInt" data-stat-label="ZEKA (INT)">
+                <option value="">— Seç —</option>
+                <option value="3">+3</option>
+                <option value="2">+2</option>
+                <option value="1">+1</option>
+                <option value="0">0</option>
+                <option value="-1">-1 (Özel)</option>
+                <option value="4">+4 (Özel)</option>
+              </select>
+              <button type="button" class="btn-roll-mini" data-roll-stat="statInt">🎲 Zeka Zarı</button>
+            </div>
+
+            <div class="stat-box">
+              <div class="stat-title">👁️ İRADE / ALGI (WIS)</div>
+              <div class="stat-desc">Fark Etme • Sezgi • Direnç</div>
+              <select class="stat-select" id="statWis" data-stat-label="İRADE / ALGI (WIS)">
+                <option value="">— Seç —</option>
+                <option value="3">+3</option>
+                <option value="2">+2</option>
+                <option value="1">+1</option>
+                <option value="0">0</option>
+                <option value="-1">-1 (Özel)</option>
+                <option value="4">+4 (Özel)</option>
+              </select>
+              <button type="button" class="btn-roll-mini" data-roll-stat="statWis">🎲 İrade / Algı</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- BÖLÜM 3: CAN, ZIRH, SANRI YÜKÜ VE KARANLIK İZ -->
+        <section class="card">
+          <div class="section-header">
+            <h2>3. Hayatta Kalma, Sanrı Yükü ve Karanlık İz</h2>
+            <div class="rest-buttons">
+              <button type="button" class="btn btn-xs btn-secondary" id="btnShortRest" title="+2 Sanrı Yükü doldurur">⛺ Kısa Mola (+2 Yük)</button>
+              <button type="button" class="btn btn-xs btn-accent" id="btnFullRest" title="Canı ve 4 Sanrı Yükünü tamamen doldurur">✨ Tam Yenilenme</button>
+            </div>
+          </div>
+
+          <div class="vitals-row">
+            <!-- CAN PUANI -->
+            <div class="vital-card hp-card">
+              <div class="vital-top">
+                <span class="vital-label">❤️ CAN PUANI (HP)</span>
+                <span class="hp-status-tag" id="hpStatusTag">Girilmedi</span>
+              </div>
+              <div class="hp-inputs">
+                <input type="number" id="hpCurrent" min="0" max="999" placeholder="Mevcut" />
+                <span class="hp-sep">/</span>
+                <input type="number" id="hpMax" min="1" max="999" placeholder="Maks" />
+              </div>
+              <div class="hp-bar-outer">
+                <div class="hp-bar-inner" id="hpBarInner" style="width: 0%;"></div>
+              </div>
+              <div class="hp-quick-btns">
+                <button type="button" data-hp-delta="-5">-5</button>
+                <button type="button" data-hp-delta="-1">-1</button>
+                <button type="button" data-hp-delta="+1">+1</button>
+                <button type="button" data-hp-delta="+5">+5</button>
+                <button type="button" id="btnFillHp">Maks</button>
+              </div>
+            </div>
+
+            <!-- ZIRH SINIFI -->
+            <div class="vital-card small-vital">
+              <span class="vital-label">🛡️ ZIRH (AC)</span>
+              <input type="number" id="armorClass" min="1" max="30" placeholder="—" class="big-num-input" />
+              <span class="vital-sub">İsabet Eşiği</span>
+            </div>
+
+            <!-- GEÇİCİ KALKAN -->
+            <div class="vital-card small-vital">
+              <span class="vital-label">💠 KALKAN</span>
+              <input type="number" id="tempShield" min="0" max="99" placeholder="0" class="big-num-input shield-num" />
+              <div class="mini-adjust">
+                <button type="button" id="btnShieldMinus">-1</button>
+                <button type="button" id="btnShieldPlus">+1</button>
+                <button type="button" id="btnCrystalShield" title="Geçici Kalkan Zarı (1d8+2)">🎲</button>
+              </div>
+            </div>
+
+            <!-- İNİSİYATİF -->
+            <div class="vital-card small-vital">
+              <span class="vital-label">🎲 İNİSİYATİF</span>
+              <div class="big-num-display" id="initDisplay">—</div>
+              <button type="button" class="btn-roll-mini" id="btnRollInit">Sıra Zarı At</button>
+            </div>
+          </div>
+
+          <!-- SANRI YÜKÜ (TIKLANABİLİR 4 KRİSTAL) -->
+          <div class="tracker-panel delusion-panel">
+            <div class="tracker-header">
+              <div>
+                <h3>💎 Sanrı Yükü (Delusion Charges) — <span id="delusionCountText">0 / 4</span></h3>
+                <p class="tracker-sub">Kristallere tıklayarak veya artı/eksi tuşlarıyla yük ekleyip çıkarabilirsin.</p>
+              </div>
+              <div class="tracker-btn-group">
+                <button type="button" class="btn btn-xs btn-ghost" id="btnChargeMinus">-1 Yük</button>
+                <button type="button" class="btn btn-xs btn-ghost" id="btnChargePlus">+1 Yük</button>
+              </div>
+            </div>
+
+            <div class="delusion-gems" id="delusionGems">
+              <button type="button" class="gem-slot" data-gem-index="1" title="1. Sanrı Yükü">
+                <span class="gem-icon">❖</span>
+                <span class="gem-num">1</span>
+              </button>
+              <button type="button" class="gem-slot" data-gem-index="2" title="2. Sanrı Yükü">
+                <span class="gem-icon">❖</span>
+                <span class="gem-num">2</span>
+              </button>
+              <button type="button" class="gem-slot" data-gem-index="3" title="3. Sanrı Yükü">
+                <span class="gem-icon">❖</span>
+                <span class="gem-num">3</span>
+              </button>
+              <button type="button" class="gem-slot" data-gem-index="4" title="4. Sanrı Yükü">
+                <span class="gem-icon">❖</span>
+                <span class="gem-num">4</span>
+              </button>
+
+              <button type="button" class="btn btn-overdrive" id="btnOverdrive" title="Avantaj + ekstra 2d6 hasar kazanırsın; ancak 1d4 öz hasar ve +1 Karanlık İz alırsın!">
+                ⚠️ Sanrı Aşırı Yükle (Overdrive)
+              </button>
+            </div>
+          </div>
+
+          <!-- KARANLIK İZ / YOZLAŞMA SAYACI (0 - 10 TIKLANABİLİR) -->
+          <div class="tracker-panel corruption-panel">
+            <div class="tracker-header">
+              <div>
+                <h3>🌑 Karanlık İz / Sanrı Aşınması — <span id="corruptionCountText">0 / 10</span></h3>
+                <p class="tracker-sub">Kutucuklara tıklayarak veya artı/eksi tuşlarıyla aşamayı değiştirebilirsin.</p>
+              </div>
+              <div class="tracker-btn-group">
+                <button type="button" class="btn btn-xs btn-ghost" id="btnCorruptMinus">-1</button>
+                <button type="button" class="btn btn-xs btn-ghost" id="btnCorruptPlus">+1</button>
+                <button type="button" class="btn btn-xs btn-secondary" id="btnCorruptClear" title="Karanlık İzi 0'a sıfırlar">Temizle (0)</button>
+              </div>
+            </div>
+
+            <div class="corruption-boxes" id="corruptionBoxes">
+              <button type="button" class="corrupt-box" data-corrupt-val="1">1</button>
+              <button type="button" class="corrupt-box" data-corrupt-val="2">2</button>
+              <button type="button" class="corrupt-box" data-corrupt-val="3">3</button>
+              <button type="button" class="corrupt-box" data-corrupt-val="4">4</button>
+              <button type="button" class="corrupt-box" data-corrupt-val="5">5</button>
+              <button type="button" class="corrupt-box" data-corrupt-val="6">6</button>
+              <button type="button" class="corrupt-box" data-corrupt-val="7">7</button>
+              <button type="button" class="corrupt-box" data-corrupt-val="8">8</button>
+              <button type="button" class="corrupt-box" data-corrupt-val="9">9</button>
+              <button type="button" class="corrupt-box fatal-box" data-corrupt-val="10">10</button>
+            </div>
+
+            <div class="corruption-symptom" id="corruptionSymptomBox">
+              <strong>Mevcut Aşama: 0 / 10</strong> — Sanrı taşın şu an dengede.
+            </div>
+          </div>
+        </section>
+
+        <!-- BÖLÜM 4: SİLAH, SANRI YETENEKLERİ VE SINIF ÖZELLİĞİ -->
+        <section class="card">
+          <div class="section-header">
+            <h2>4. Silahlar, Sanrı Yetenekleri ve Sınıf Pasifi</h2>
+            <span class="section-hint">Silahını, becerilerini ve hasar zarlarını sıfırdan girip tek tıkla zar atabilirsin</span>
+          </div>
+
+          <!-- Avcı Nişancı Özel Şırınga Kutusu (Sadece Nişancı seçildiğinde görünür) -->
+          <div class="skirmisher-syringes hidden" id="syringePanel">
+            <div class="syringe-info">
+              <strong>💉 Fatui Adrenalin Şırıngaları</strong>
+              <span>Tıklayarak şırınga ekleyip çıkarabilirsin:</span>
+            </div>
+            <div class="syringe-slots">
+              <button type="button" class="syringe-btn" data-syringe="0">💉 Şırınga 1</button>
+              <button type="button" class="syringe-btn" data-syringe="1">💉 Şırınga 2</button>
+              <button type="button" class="syringe-btn" data-syringe="2">💉 Şırınga 3</button>
+              <button type="button" class="btn btn-xs btn-accent" id="btnUseSyringeHeal">🎲 Şırınga Bas (1d8+2)</button>
+            </div>
+          </div>
+
+          <div class="abilities-list">
+            <!-- 1. Silah Saldırısı -->
+            <div class="ability-card">
+              <div class="ability-top">
+                <span class="ability-tag">🗡️ SİLAH SALDIRISI</span>
+                <label class="inline-check hidden" id="assassinSneakWrap">
+                  <input type="checkbox" id="chkSneakAttack" />
+                  <span>Gölge Adımı Aktif (+1d6 Sinsi Hasar)</span>
+                </label>
+                <button type="button" class="btn btn-sm btn-secondary" id="btnRollWeapon">🎲 Saldırı At</button>
+              </div>
+              <div class="ability-fields">
+                <div class="field">
+                  <label>Silah Adı</label>
+                  <input type="text" id="weaponName" placeholder="Silah adını gir..." />
+                </div>
+                <div class="field small-field">
+                  <label>İsabet Bonusu</label>
+                  <input type="text" id="weaponHit" placeholder="Örn: +5" />
+                </div>
+                <div class="field small-field">
+                  <label>Hasar Zarı</label>
+                  <input type="text" id="weaponDmg" placeholder="Örn: 1d8+3" />
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. Elemental Beceri -->
+            <div class="ability-card elem-accent-border">
+              <div class="ability-top">
+                <span class="ability-tag elem-tag">⚡ ELEMENTAL BECERİ</span>
+                <button type="button" class="btn btn-sm btn-secondary" id="btnRollSkill">🎲 Beceri At</button>
+              </div>
+              <div class="ability-fields">
+                <div class="field">
+                  <label>Beceri İsmi</label>
+                  <input type="text" id="skillName" placeholder="Beceri adını gir..." />
+                </div>
+                <div class="field small-field">
+                  <label>İsabet Bonusu</label>
+                  <input type="text" id="skillHit" placeholder="Örn: +5" />
+                </div>
+                <div class="field small-field">
+                  <label>Element Hasarı</label>
+                  <input type="text" id="skillDmg" placeholder="Örn: 1d8+3" />
+                </div>
+              </div>
+              <input type="text" class="ability-note-input" id="skillDesc" placeholder="Becerinin görsel tarifi veya kişisel notun..." />
+            </div>
+
+            <!-- 3. Sanrı Patlaması -->
+            <div class="ability-card burst-border">
+              <div class="ability-top">
+                <span class="ability-tag burst-tag">💥 SANRI PATLAMASI (2 Yük)</span>
+                <button type="button" class="btn btn-sm btn-accent" id="btnRollBurst">💥 2 Yük Harca & Patlat</button>
+              </div>
+              <div class="ability-fields">
+                <div class="field">
+                  <label>İmza Patlama İsmi</label>
+                  <input type="text" id="burstName" placeholder="Patlama adını gir..." />
+                </div>
+                <div class="field">
+                  <label>Patlama Türü</label>
+                  <select id="burstMode">
+                    <option value="">— Patlama Türü Seçin —</option>
+                    <option value="single">Tek Hedefe Yıkım (3d8 + 3)</option>
+                    <option value="aoe">Alan Saldırısı (2d6 + 3)</option>
+                    <option value="support">Takım Şifası / Kalkanı (2d6 + 2)</option>
+                  </select>
+                </div>
+              </div>
+              <input type="text" class="ability-note-input" id="burstDesc" placeholder="Sanrı Patlamanın görsel tarifi veya notu..." />
+            </div>
+
+            <!-- 4. Sınıf Özel Pasifi -->
+            <div class="ability-card">
+              <div class="ability-top">
+                <span class="ability-tag">🎖️ SINIF ÖZEL PASİF YETENEĞİ</span>
+              </div>
+              <textarea id="classPassiveText" rows="2" placeholder="Seçtiğin sınıfın özel pasif yeteneğini buraya yaz..."></textarea>
+            </div>
+          </div>
+        </section>
+
+        <!-- ALT SIFIRLAMA BARI -->
+        <div class="bottom-reset-bar">
+          <span>Tüm alanları temizleyip sıfırdan başlamak istersen:</span>
+          <button type="button" class="btn btn-danger-solid" id="btnResetSheetBottom">
+            🗑️ Tüm Karakter Kağıdını Sıfırla
+          </button>
+        </div>
+      </div>
+
+      <!-- SAĞ SÜTUN: ZAR KUTUSU, ENVANTER VE MİNİ KURALLAR -->
+      <aside class="right-column">
+        <!-- CANLI ZAR ATICI -->
+        <section class="card dice-card">
+          <div class="section-header">
+            <h2>🎲 Hızlı Zar Atıcı</h2>
+            <div class="roll-mode-group" id="rollModeGroup">
+              <button type="button" class="mode-btn" data-mode="dis">Dezavantaj</button>
+              <button type="button" class="mode-btn active" data-mode="normal">Normal</button>
+              <button type="button" class="mode-btn" data-mode="adv">Avantaj</button>
+            </div>
+          </div>
+
+          <div class="dice-result-box" id="diceResultBox">
+            <div class="dice-placeholder">Bir yeteneğe veya aşağıdaki zarlara tıkla!</div>
+          </div>
+
+          <div class="quick-dice-bar">
+            <button type="button" data-quick-die="20">d20</button>
+            <button type="button" data-quick-die="12">d12</button>
+            <button type="button" data-quick-die="10">d10</button>
+            <button type="button" data-quick-die="8">d8</button>
+            <button type="button" data-quick-die="6">d6</button>
+            <button type="button" data-quick-die="4">d4</button>
+          </div>
+
+          <div class="dice-history" id="diceHistory"></div>
+        </section>
+
+        <!-- ENVANTER VE NOTLAR -->
+        <section class="card">
+          <div class="section-header">
+            <h2>🎒 Envanter & Görev Notları</h2>
+          </div>
+
+          <div class="inventory-add-row">
+            <input type="text" id="newItemInput" placeholder="Eşya adı yazıp + Ekle'ye bas..." />
+            <button type="button" class="btn btn-sm btn-secondary" id="btnAddItem">+ Ekle</button>
+          </div>
+
+          <ul class="inventory-list" id="inventoryList"></ul>
+
+          <div class="field" style="margin-top: 12px;">
+            <label for="questNotes">📓 İpuçları ve Seans Notlarım</label>
+            <textarea id="questNotes" rows="5" placeholder="Bulduğunuz kodları, şüpheli durumları ve takım planlarını buraya not alabilirsin..."></textarea>
+          </div>
+        </section>
+
+        <!-- MİNİ SAVAŞ ÖZETİ -->
+        <section class="card">
+          <details open>
+            <summary class="collapsible-title">📖 Sıranda Ne Yapabilirsin? (Mini Kurallar)</summary>
+            <ul class="rules-mini-list">
+              <li><strong>Hareket:</strong> Turunda yaklaşık 9 metre yer değiştirebilir, siper alabilirsin.</li>
+              <li><strong>1 Ana Aksiyon:</strong> Silah saldırısı, Elemental Beceri, Sanrı Patlaması, Koşma, Arkadaşa Yardım Etme (Avantaj verir!) veya çevredeki bir nesneyle etkileşim.</li>
+              <li><strong>Ortak Hamle:</strong> Sıran uzak olsa bile <em>"Turumu arkadaşımla birleştiriyorum"</em> diyerek takım arkadaşınla eşzamanlı ortak hamle yapabilirsin!</li>
+              <li><strong>Doğal 20 (Kritik):</strong> Zarın üstünde saf <code>20</code> gelirse otomatik vurur ve <strong>hasar zarları ikiye katlanır!</strong></li>
+            </ul>
+          </details>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <div class="toast" id="toastMsg">Kopyalandı!</div>
+
+  <script src="script.js"></script>
+</body>
+</html>
